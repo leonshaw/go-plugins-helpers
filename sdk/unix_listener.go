@@ -1,3 +1,4 @@
+//go:build linux || freebsd
 // +build linux freebsd
 
 package sdk
@@ -16,6 +17,9 @@ func newUnixListener(pluginName string, gid int) (net.Listener, string, error) {
 	path, err := fullSocketAddress(pluginName)
 	if err != nil {
 		return nil, "", err
+	}
+	if listener, err := setupSocketActivation(); err != nil || listener != nil {
+		return listener, "", err
 	}
 	listener, err := sockets.NewUnixSocket(path, gid)
 	if err != nil {
